@@ -8,8 +8,6 @@
 #JWT como medida de seguridad: el token (Bearer_token) se entrega en el Login 
 
 """
-
-
 from datetime import datetime
 from flask import Blueprint, request, jsonify
 from sqlalchemy.orm import sessionmaker
@@ -25,8 +23,6 @@ patient_routes = Blueprint("patient_routes", __name__)
 path_api = "/menu_api/"
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engineNutri)
-
-
 
 #Nuevo Paciente 
 @patient_routes.route(path_api + "new_patient", methods=["POST"])
