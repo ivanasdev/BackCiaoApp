@@ -13,38 +13,6 @@ main_routes = Blueprint("main_routes", __name__)
 
 path_api="/menu_api/"
 
-#JWT TEST 
-@main_routes.route("/menu_api/menutest", methods=["GET"])
-@jwt_required
-def men_test01():
-    return jsonify({"msg": "GET Action", "user_id": request.user_id})
-
-
-#LOGIN 
-@main_routes.route(path_api + "login", methods=["POST"])
-def login():
-    
-    #Extract data to client
-    data_req = request.get_json(silent=True)
-    username_or_email = data_req.get("username_or_email")
-    token_user = data_req.get("token_user")
-    
-    #Validate Json 
-    error_data=validar_json(data_req)
-    error_param=valid_param01(p1=username_or_email,p2=token_user)
-
-    #Validaciones 
-    if error_data:
-        return error_data
-    elif error_param:
-        return error_param
-
-    #Buscar usuario 
-    response, status = login_func(username_or_email, token_user)
-    #Respuesta
-    return response, status
-
-
 
 #Heatlh EP
 @main_routes.route(path_api + "menu", methods=["GET", "POST"])
@@ -86,6 +54,32 @@ def menu_01():
             "user_data": f"Usuario: {id_user}",
             "UrlAPI":f"API_TO_SEND:{url_api}"
         }, 200
+
+#LOGIN 
+@main_routes.route(path_api + "login", methods=["POST"])
+def login():
+    
+    #Extract data to client
+    data_req = request.get_json(silent=True)
+    username_or_email = data_req.get("username_or_email")
+    token_user = data_req.get("token_user")
+    
+    #Validate Json 
+    error_data=validar_json(data_req)
+    error_param=valid_param01(p1=username_or_email,p2=token_user)
+
+    #Validaciones 
+    if error_data:
+        return error_data
+    elif error_param:
+        return error_param
+
+    #Buscar usuario 
+    response, status = login_func(username_or_email, token_user)
+    #Respuesta
+    return response, status
+
+
 
 
 """

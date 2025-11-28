@@ -7,7 +7,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from models.users_model import PatientModel,HistorialClinico
 from sqlalchemy import text
 
+#Funciones auxiliares para llamar los SP's para procesos de inserts y selects
 
+#Datos del paciente por IDß
 def get_patient_by_id_logic(id_paciente):
     db = SessionLocal()
     try:
@@ -64,9 +66,7 @@ def get_patient_by_id_logic(id_paciente):
     finally:
         db.close()
 
-
-
-
+#Todos los pacientes por nutriologo
 def get_pacientes_logic(id_nutriologo):
     db = SessionLocal()
     try:
@@ -116,6 +116,7 @@ def get_pacientes_logic(id_nutriologo):
     finally:
         db.close()
 
+#New paciente:Valida fecha y llama al SP SPI_NEWPATIENT
 def new_patient(data_req):
     db = SessionLocal()
     try:
@@ -193,6 +194,7 @@ def new_patient(data_req):
     finally:
         db.close()
 
+#Login function 
 def login_func(st_username_or_email: str, st_token: str):
     db = SessionLocal()
 
@@ -254,29 +256,7 @@ def login_func(st_username_or_email: str, st_token: str):
     finally:
         db.close()
 
-def new_clinical_history(data):
-    db=SessionLocal()
-    new_ch = HistorialClinico(
-        member_id=data.get("member_id"),
-        height=data.get("height"),
-        weight=data.get("weight"),
-        bmi=data.get("bmi"),
-        age=data.get("age"),
-        gender=data.get("gender"),
-        activity_level=data.get("activity_level"),
-        medical_conditions=data.get("medical_conditions"),
-        medications=data.get("medications"),
-        allergies=data.get("allergies"),
-        dietary_preferences=data.get("dietary_preferences"),
-        goals=data.get("goals"),
-        notes=data.get("notes"),
-    )
-
-    db.add(new_ch)
-    db.commit()
-    return new_ch.to_dict()
-
-
+#Nuevo historial clinico
 def new_HC_SP(data):
     idPaciente = data.get("idPaciente")
     db = SessionLocal()
