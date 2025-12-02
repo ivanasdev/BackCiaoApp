@@ -256,7 +256,7 @@ def login_func(st_username_or_email: str, st_token: str):
     finally:
         db.close()
 
-#Nuevo historial clinico
+#Nuevo historial clinico 
 def new_HC_SP(data):
     idPaciente = data.get("idPaciente")
     db = SessionLocal()
