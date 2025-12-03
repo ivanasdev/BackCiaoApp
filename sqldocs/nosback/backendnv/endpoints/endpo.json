@@ -1,0 +1,19 @@
+{
+    "id_Nutriologo": "1",
+    "id_Paciente": "46",
+    "folio_archive": "qLvioY",
+    "diabetes": true,
+    "notasDiabetes": "",
+    "cancer": false,
+    "notasCancer": "",
+    "dislipidemia": false,
+    "notasDislipidemia": "",
+    "anemia": false,
+    "notasAnemia": "",
+    "hipertension": false,
+    "notasHipertension": "",
+    "enfermedadesRenales": false,
+    "notasEnfermedadesRenales": "",
+    "Otras": true,
+    "notasOtras": "Gonnorrea del padre"
+}

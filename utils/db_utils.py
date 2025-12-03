@@ -315,3 +315,4 @@ def new_HC_SP(data):
 
     finally:
         db.close()
+
