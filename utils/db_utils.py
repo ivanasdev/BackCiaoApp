@@ -7,7 +7,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from models.users_model import PatientModel,HistorialClinico
 from sqlalchemy import text
 
+#Funciones auxiliares para llamar los SP's para procesos de inserts y selects
 
+#Datos del paciente por IDß
 def get_patient_by_id_logic(id_paciente):
     db = SessionLocal()
     try:
@@ -64,9 +66,7 @@ def get_patient_by_id_logic(id_paciente):
     finally:
         db.close()
 
-
-
-
+#Todos los pacientes por nutriologo
 def get_pacientes_logic(id_nutriologo):
     db = SessionLocal()
     try:
@@ -116,6 +116,7 @@ def get_pacientes_logic(id_nutriologo):
     finally:
         db.close()
 
+#New paciente:Valida fecha y llama al SP SPI_NEWPATIENT
 def new_patient(data_req):
     db = SessionLocal()
     try:
@@ -193,63 +194,69 @@ def new_patient(data_req):
     finally:
         db.close()
 
+#Login function 
 def login_func(st_username_or_email: str, st_token: str):
     db = SessionLocal()
 
     try:
-        # 1. Buscar usuario por username o email
-        user = db.query(UserRealModel).filter(
-            (UserRealModel.st_username == st_username_or_email) |
-            (UserRealModel.st_email == st_username_or_email)
-        ).first()
+        # Ejecutar el SP
+        result = db.execute(
+            text("""
+                CALL SP_LOGIN_SIMPLE(
+                    :p_user,
+                    @o_id_real_user,
+                    @o_st_username,
+                    @o_st_email,
+                    @o_id_nutriologo,
+                    @o_st_password_hash
+                )
+            """),
+            {"p_user": st_username_or_email}
+        )
 
-        if not user:
+        # Obtener los valores de salida
+        row = db.execute(text("""
+            SELECT 
+                @o_id_real_user AS id_real_user,
+                @o_st_username AS st_username,
+                @o_st_email AS st_email,
+                @o_id_nutriologo AS id_nutriologo,
+                @o_st_password_hash AS st_password_hash
+        """)).fetchone()
+
+        # No existe
+        if not row or row.id_real_user is None:
             return {"status": "error", "message": "Usuario no encontrado"}, 404
 
-        # 2. Validar token enviado == st_password_hash
-        if user.st_password_hash != st_token:
+        # Validar token
+        if row.st_password_hash != st_token:
             return {"status": "error", "message": "Token incorrecto"}, 401
-        
-        # Crear el JWT
-        bearer_token = generate_token(user.id_real_user)
 
-        # 3. Usuario correcto → retornarlo
+        # Crear token JWT
+        bearer_token = generate_token(row.id_real_user)
+
+        # Armar usuario en dict
+        user_dict = {
+            "id_real_user": row.id_real_user,
+            "st_username": row.st_username,
+            "st_email": row.st_email,
+            "id_nutriologo": row.id_nutriologo
+        }
+
         return {
             "status": "success",
             "message": "Login correcto",
             "bearer_token": bearer_token,
-            "user": user.to_dict()
+            "user": user_dict
         }, 200
-    
+
     except Exception as e:
         return {"status": "error", "message": str(e)}, 500
 
     finally:
         db.close()
 
-def new_clinical_history(data):
-    db=SessionLocal()
-    new_ch = HistorialClinico(
-        member_id=data.get("member_id"),
-        height=data.get("height"),
-        weight=data.get("weight"),
-        bmi=data.get("bmi"),
-        age=data.get("age"),
-        gender=data.get("gender"),
-        activity_level=data.get("activity_level"),
-        medical_conditions=data.get("medical_conditions"),
-        medications=data.get("medications"),
-        allergies=data.get("allergies"),
-        dietary_preferences=data.get("dietary_preferences"),
-        goals=data.get("goals"),
-        notes=data.get("notes"),
-    )
-
-    db.add(new_ch)
-    db.commit()
-    return new_ch.to_dict()
-
-
+#Nuevo historial clinico 
 def new_HC_SP(data):
     idPaciente = data.get("idPaciente")
     db = SessionLocal()
@@ -308,3 +315,4 @@ def new_HC_SP(data):
 
     finally:
         db.close()
+
